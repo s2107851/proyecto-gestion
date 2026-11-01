@@ -10,6 +10,6 @@ Se mantienen doce historias para conservar su numeración. HU06 describe las acc
 
 Se incluye consulta de historial personal como parte del perfil, con implementación en la entrega 3. No se implementan edición de perfil, recuperación de contraseña, stock numérico, pagos en línea, envíos, producción, OCR ni facturación fiscal. Productos y precios iniciales son ejemplos.
 
-Código procedural PHP, PDO, sesiones, HTML, CSS y JavaScript sencillo. JSON para datos de presentación. Cuatro tablas: usuarios, productos, pedidos y detalle_pedido. Categoría como campo de productos, sin tabla adicional.
+Arquitectura Modelo–Vista–Controlador con funciones PHP sencillas: modelos para datos/reglas, vistas para HTML y controladores para solicitudes. PDO, sesiones, CSS y JavaScript sencillo; sin frameworks. JSON para datos de presentación. Cuatro tablas: usuarios, productos, pedidos y detalle_pedido. Categoría como campo de productos, sin tabla adicional.
 
 Estados propuestos del pedido: pendiente → listo → retirado; se podrá cancelar desde pendiente o listo. Un pedido retirado se marca pagado en el local; cancelados no cuentan como ventas cobradas. El panel distinguirá pedidos recibidos de ventas efectivamente retiradas y pagadas.

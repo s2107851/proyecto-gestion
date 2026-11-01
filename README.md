@@ -31,27 +31,36 @@ Requisito: PHP 8.1 o superior con `pdo_mysql`, MySQL 8 o MariaDB 10.4 o superior
 
 El SQL se importa antes de probar el catálogo. Reimportarlo sobre este mismo esquema no borra pedidos ni duplica los seis productos. `CREATE TABLE IF NOT EXISTS` no actualiza esquemas antiguos distintos: esta es una base nueva.
 
-## Archivos principales
+## Estructura Modelo–Vista–Controlador (MVC)
 
-| Archivo | Responsabilidad |
+MVC sencillo con funciones PHP, sin framework, clases obligatorias ni reglas de reescritura de Apache.
+
+| Carpeta / archivo | Responsabilidad |
 |---|---|
-| `index.php` | Consulta productos y dibuja el catálogo |
-| `carrito.php` | Panel final con líneas, cantidades y total |
-| `carrito_accion.php` | Recibe POST y modifica la sesión |
-| `cuenta.php` | Pantalla preparada para registro e ingreso |
-| `perfil.php` | Punto de trabajo para perfil e historial |
-| `admin.php` | Punto de trabajo protegido para administración |
-| `includes/app.php` | Sesión, conexión PDO, CSRF y funciones comunes |
-| `includes/header.php`, `footer.php` | Estructura compartida de las páginas |
-| `assets/estilos.css`, `app.js` | Diseño adaptable y filtros de catálogo |
-| `assets/sitio.json` | Datos de presentación y categorías |
-| `sql/proyecto_gestion.sql` | Cuatro tablas y datos de ejemplo |
+| `models/producto.php` | Consultas de productos mediante PDO |
+| `models/carrito.php` | Cantidades, productos disponibles, subtotales y total |
+| `controllers/catalogo.php` | Solicita productos al modelo y selecciona la vista |
+| `controllers/carrito.php` | Valida POST/CSRF, llama al modelo y muestra/redirige |
+| `controllers/cuenta.php`, `admin.php` | Acceso protegido y puntos pendientes de las entregas |
+| `views/*.php` | HTML y presentación de los datos recibidos, sin SQL |
+| `views/layout/header.php`, `footer.php` | Cabecera y pie compartidos |
+| `includes/app.php` | Arranque, sesión, seguridad y renderizado de vistas |
+| `includes/conexion.php`, `config.php` | Conexión y configuración de MySQL |
+| PHP de la raíz | Entradas públicas pequeñas que delegan en controladores |
+| `assets/` | CSS, JavaScript y JSON de presentación |
+| `sql/proyecto_gestion.sql` | Las mismas cuatro tablas y datos de ejemplo |
 
-El HTML está en las páginas PHP. JSON se usa realmente para cargar la configuración de presentación; no duplica las tablas. Los botones del carrito funcionan sin JavaScript; JS solo filtra productos. Se usan ilustraciones de emoji para no depender de imágenes externas.
+Ejemplo: `carrito_accion.php` → `carrito_actualizar()` → `carrito_cambiar()` → redirección a `carrito.php` → `carrito_mostrar()` → `views/carrito.php`.
+
+Las vistas no consultan la base de datos; los controladores no contienen SQL ni dibujan HTML. Los modelos no procesan formularios ni redirigen. El carrito conserva su estado en sesión; la persistencia de productos está en MySQL. Los archivos internos tienen protección de acceso directo.
+
+El HTML está en las vistas PHP. JSON configura la presentación y no duplica las tablas. Los botones del carrito funcionan sin JavaScript; JS filtra productos. Se mantienen las ilustraciones de emoji.
+
+Ver [guía MVC para la defensa](docs/ARQUITECTURA_MVC.md).
 
 ## Desarrollo en tres commits del equipo
 
-Ver [plan de commits](docs/PLAN_COMMITS.md) y [historias de usuario](docs/HISTORIAS_USUARIO.md). Se preserva el historial existente: dos commits iniciales y un commit de preparación de esta base. Luego habrá **tres commits de implementación**, uno por integrante. Por tanto, el historial previsto tendrá **seis commits en total**, si no se agregan otros.
+Ver [plan de commits](docs/PLAN_COMMITS.md) y [historias de usuario](docs/HISTORIAS_USUARIO.md). Se preserva el historial existente: dos commits iniciales, un commit de preparación de la base y un commit de reorganización MVC. Luego habrá **tres commits de implementación**, uno por integrante. Por tanto, el historial previsto tendrá **siete commits en total**, si no se agregan otros.
 
 No se crean los tres commits ahora: cada integrante debe aplicar su parte, probarla, revisarla y confirmarla desde su cuenta. Los comentarios `ENTREGA` señalan los puntos de trabajo. No hay una versión terminada oculta detrás de opciones o banderas.
 
@@ -62,9 +71,9 @@ Abrir catálogo → buscar «torta» → agregar dos productos → abrir Mi carr
 ## Qué explicar en la defensa
 
 1. El navegador envía formularios POST a PHP.
-2. PHP valida la acción y conserva `id → cantidad` en la sesión.
+2. El controlador valida la acción y pide al modelo cambiar `id → cantidad` en la sesión.
 3. PDO consulta el precio desde MySQL; el cliente no decide cuánto cuesta un artículo.
-4. PHP calcula con centavos enteros y muestra los importes en pesos.
+4. El modelo calcula en centavos; la vista presenta los importes en pesos.
 5. El SQL relaciona usuarios, pedidos, detalles y productos.
 
 La simplicidad consiste en pocas pantallas y funciones compartidas, no en quitar validaciones. El servidor verifica el token CSRF, usa consultas preparadas y escapa el texto al mostrarlo.

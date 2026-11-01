@@ -2,18 +2,20 @@
 
 ## Conteo del historial
 
-Los dos commits anteriores se conservan: `2a48192` (creación) y `6c71732` (alcance). Esta base agrega un tercer commit de preparación, sin atribuirlo a los compañeros. **Implementación del equipo: 0 de 3 entregas realizadas.** Con las tres entregas habrá seis commits totales, salvo cambios adicionales. No se reescribe el historial para aparentar otro conteo.
+Se conservan `2a48192` (creación), `6c71732` (alcance) y `3ce79e6` (base funcional). La reorganización MVC agrega un cuarto commit de preparación. **Implementación del equipo: 0 de 3 entregas realizadas.** Con las tres entregas habrá siete commits totales, salvo cambios adicionales. No se reescribe el historial ni se atribuyen estos cambios a los compañeros.
+
+Las entradas PHP de la raíz solo delegan. Toda nueva funcionalidad debe mantener la separación: consultas en modelos, validación de solicitudes en controladores y presentación en vistas. No agregar SQL a las vistas.
 
 ## Entrega 1 · Santiago Beasley
 
 Rol confirmado: desarrollador y Scrum Master. Alcance: **HU01, HU02, HU03 y HU04**.
 
-- Completar `cuenta.php`: registro e inicio de sesión con formularios POST y CSRF.
+- Completar `controllers/cuenta.php`, crear `models/usuario.php` y habilitar `views/cuenta.php`: registro e inicio de sesión con formularios POST y CSRF.
 - Validar nombre, correo único y contraseña de al menos ocho caracteres en PHP.
 - Usar `password_hash` y `password_verify`; el registro siempre crea `cliente`.
 - Guardar en `$_SESSION['usuario']` únicamente id, nombre, email y rol; regenerar identificador de sesión.
-- Implementar `salir.php` por POST, destruir sesión y vaciar carrito al salir. Al ingresar, conservar el carrito invitado para que se pueda terminar la compra.
-- Completar datos en `perfil.php`; agregar el botón de cerrar sesión en la cabecera.
+- Implementar `salir.php` como entrada a un controlador de cierre por POST, destruir sesión y vaciar carrito al salir. Al ingresar, conservar el carrito invitado para que se pueda terminar la compra.
+- Pasar los datos desde `controllers/cuenta.php` a `views/perfil.php`; agregar el cierre en `views/layout/header.php`.
 - Documentar cómo asignar el rol admin a una cuenta ya registrada desde phpMyAdmin, utilizando su correo y verificando que se actualizó una sola cuenta.
 - Probar cuenta válida, correo duplicado, contraseña errónea, usuario normal sin acceso admin, cierre y cambio entre cuentas.
 
@@ -24,10 +26,10 @@ Mensaje propuesto: `feat: HU01-HU04 registro, sesion y perfil de clientes`
 Responsabilidad propuesta: desarrollador de interfaz y experiencia de compra. Alcance: **HU05, HU06, HU07 y HU08**. Las tres primeras tienen una base funcional; esta entrega las integra y revalida junto con la confirmación.
 
 - Revisar catálogo, filtros y controles existentes. No reemplazar el carrito de sesión por otro en JavaScript.
-- Cambiar el botón deshabilitado por un formulario POST hacia `confirmar.php` con CSRF y un token único de confirmación.
+- Cambiar el botón deshabilitado por un formulario POST hacia `confirmar.php` (entrada a un controlador de confirmación) con CSRF y un token único de confirmación.
 - Exigir cuenta cliente, carrito no vacío y productos activos. Releer los precios desde MySQL.
 - Conservar en sesión el resumen mostrado; si cambian productos, precios o cantidades antes de confirmar, volver al carrito para revisar el nuevo resumen.
-- Insertar pedido y detalles en una transacción. Conservar nombre y precio unitario históricos.
+- Crear `models/pedido.php` para insertar pedido y detalles en una transacción. Conservar nombre y precio unitario históricos.
 - Usar `token_confirmacion` único para impedir pedidos duplicados por doble envío.
 - Vaciar el carrito solo después de confirmar la transacción. Mostrar número, total, retiro y pago en el local.
 - Probar doble clic, carrito vacío, precio cambiado, producto desactivado y fallo de guardado sin datos parciales.
@@ -38,11 +40,11 @@ Mensaje propuesto: `feat: HU05-HU08 catalogo, carrito y confirmacion de pedidos`
 
 Responsabilidad propuesta: desarrollador de administración e integración de base de datos. Alcance: **HU09, HU10, HU11 y HU12**.
 
-- Completar `admin.php` con tres apartados: productos, clientes y pedidos; verificar admin en cada GET y POST.
+- Completar `controllers/admin.php`, `views/admin.php` y los modelos correspondientes con tres apartados: productos, clientes y pedidos; verificar admin en cada GET y POST.
 - Productos: crear, editar precio/descripción/categoría y activar/desactivar. No borrar productos referenciados en pedidos.
 - Clientes: listar y buscar por nombre/correo, consultar pedidos; nunca mostrar hashes.
 - Pedidos: ver detalle, filtrar por fecha/estado y pasar de pendiente a listo y retirado, o cancelar desde pendiente/listo. Registrar el pago al retirar. No contar cancelados como ventas cobradas.
-- Completar historial propio dentro de `perfil.php`, filtrando por el id de la sesión.
+- Completar historial propio en `views/perfil.php`, pasando los datos desde `controllers/cuenta.php` y `models/pedido.php`, filtrando por el id de la sesión.
 - Probar aislamiento entre dos clientes, acceso directo sin permisos, conservación de precios históricos y estados inválidos.
 - Completar la evidencia de pruebas de las doce HU y preparar la demo conjunta.
 

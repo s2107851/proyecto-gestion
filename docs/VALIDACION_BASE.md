@@ -43,4 +43,4 @@ Las funciones de cuentas, confirmación de pedidos, historial y administración 
 7. Comprobar que la versión base no permite registrar una cuenta ni confirmar un pedido.
 8. Tras cada entrega, ejecutar las pruebas de sus historias y registrar responsable, fecha, evidencia y hash real.
 
-La evidencia corresponde al código del commit que incorpora este archivo. Los tres commits de implementación del equipo siguen pendientes.
+La evidencia anterior corresponde a la base original del commit `3ce79e6`; las comprobaciones de la reorganización MVC se registran por separado en `VALIDACION_MVC.md`. Los tres commits de implementación del equipo siguen pendientes.
