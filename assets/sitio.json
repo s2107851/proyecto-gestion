@@ -1,0 +1,7 @@
+{
+  "nombre": "Mercopan",
+  "moneda": "UYU",
+  "retiro": "Retiro en el local",
+  "pago": "Pago en el local",
+  "categorias": ["Panes", "Tortas", "Postres"]
+}
