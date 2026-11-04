@@ -90,7 +90,7 @@ Como cliente quiero consultar mis pedidos desde el perfil.
 
 **Validación prevista:** Crear pedidos de dos cuentas e intentar solicitar directamente un pedido ajeno; debe denegarse.
 
-**Entrega:** 3. **Estado:** Pendiente.
+**Entrega:** 3. **Estado:** Implementación incorporada; validación integrada pendiente.
 
 ## HU10 · Administración de productos
 
@@ -100,7 +100,7 @@ Como administrador quiero mantener el catálogo actualizado.
 
 **Validación prevista:** Cambiar precio y desactivar un producto comprado; verificar catálogo y conservación del detalle original. Rechazar cambios por cliente.
 
-**Entrega:** 3. **Estado:** Pendiente.
+**Entrega:** 3. **Estado:** Implementación incorporada; validación integrada pendiente.
 
 ## HU11 · Consulta de clientes
 
@@ -110,7 +110,7 @@ Como administrador quiero consultar clientes y sus pedidos.
 
 **Validación prevista:** Buscar con y sin coincidencias, revisar pedidos y probar la ruta con usuario no administrador.
 
-**Entrega:** 3. **Estado:** Pendiente.
+**Entrega:** 3. **Estado:** Implementación incorporada; validación integrada pendiente.
 
 ## HU12 · Administración de pedidos y ventas
 
@@ -120,4 +120,4 @@ Como administrador quiero gestionar pedidos y registrar el cobro al retirar.
 
 **Validación prevista:** Verificar filtros y detalle; probar cada transición permitida y rechazar regresiones o cambios sobre terminales. Comprobar total cobrado solo de retirados pagados.
 
-**Entrega:** 3. **Estado:** Pendiente.
+**Entrega:** 3. **Estado:** Implementación incorporada; validación integrada pendiente.

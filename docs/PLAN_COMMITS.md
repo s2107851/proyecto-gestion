@@ -2,7 +2,7 @@
 
 ## Conteo del historial
 
-Se conservan `2a48192` (creación), `6c71732` (alcance) y `3ce79e6` (base funcional). La reorganización MVC agrega un cuarto commit de preparación. **Implementación del equipo: 0 de 3 entregas realizadas.** Con las tres entregas habrá siete commits totales, salvo cambios adicionales. No se reescribe el historial ni se atribuyen estos cambios a los compañeros.
+Se conservan `2a48192` (creación), `6c71732` (alcance) y `3ce79e6` (base funcional). La reorganización MVC agrega un cuarto commit de preparación. **Implementación del equipo: entrega 3 incorporada (1 de 3); faltan pruebas integradas y las entregas 1 y 2.** Con las tres entregas habrá siete commits totales, salvo cambios adicionales. No se reescribe el historial ni se atribuyen estos cambios a los compañeros.
 
 Las entradas PHP de la raíz solo delegan. Toda nueva funcionalidad debe mantener la separación: consultas en modelos, validación de solicitudes en controladores y presentación en vistas. No agregar SQL a las vistas.
 
@@ -52,7 +52,7 @@ Mensaje propuesto: `feat: HU09-HU12 historial y administracion de Mercopan`
 
 ## Cómo ejecutar cada entrega
 
-Trabajar en orden 1 → 2 → 3 para evitar dependencias y conflictos. Antes de empezar cada parte:
+La entrega 3 se incorporó primero desde la cuenta de Santiago Erramouspe. Para continuar, cada compañero debe actualizarse desde main y conservar el código de historial de cuenta.php y perfil.php. Orden restante: 1 → 2. Antes de empezar cada parte:
 
 ```bash
 git pull --ff-only

@@ -6,7 +6,10 @@ function cuenta_mostrar() {
 }
 function perfil_mostrar() {
     exigir_usuario();
-    // ENTREGA 1 · HU04: pasar los datos de usuario a la vista.
-    // ENTREGA 3 · HU09: consultar pedidos propios mediante el modelo de pedidos.
-    vista('perfil', ['titulo' => 'Mi perfil']);
+    $pedidos = []; $errorHistorial = false;
+    try { $pedidos = historial_del_usuario((int) usuario()['id']); }
+    catch (PDOException $ex) { error_log($ex->getMessage()); http_response_code(503); $errorHistorial = true; }
+    // ENTREGA 1 · HU04: esta vista ya muestra nombre y correo desde la sesión.
+    // Al implementar cuentas, conservar este historial y no consultar pedidos en las vistas.
+    vista('perfil', ['titulo' => 'Mi perfil', 'pedidos' => $pedidos, 'errorHistorial' => $errorHistorial]);
 }

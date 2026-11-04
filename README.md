@@ -4,7 +4,7 @@
 
 ## Estado real de esta entrega
 
-**Base funcional a medio desarrollar.** El catálogo y el carrito funcionan. Registro, inicio/cierre de sesión, perfil, confirmación, historial y administración quedan para los tres commits de implementación del equipo. Los formularios pendientes están deshabilitados; no simulan una compra ni un ingreso exitosos.
+**Desarrollo en curso.** El catálogo y el carrito funcionan. El historial y la administración ya tienen código (entrega 3), pero dependen de cuentas y confirmación para las pruebas completas. Registro, inicio/cierre de sesión y confirmación siguen pendientes. Los formularios pendientes están deshabilitados; no simulan una compra ni un ingreso exitosos.
 
 - Venta **por unidad** (cantidades enteras de 1 a 99).
 - **Retiro y pago en el local**, sin envíos ni cobros en línea.
@@ -60,9 +60,9 @@ Ver [guía MVC para la defensa](docs/ARQUITECTURA_MVC.md).
 
 ## Desarrollo en tres commits del equipo
 
-Ver [plan de commits](docs/PLAN_COMMITS.md) y [historias de usuario](docs/HISTORIAS_USUARIO.md). Se preserva el historial existente: dos commits iniciales, un commit de preparación de la base y un commit de reorganización MVC. Luego habrá **tres commits de implementación**, uno por integrante. Por tanto, el historial previsto tendrá **siete commits en total**, si no se agregan otros.
+Ver [plan de commits](docs/PLAN_COMMITS.md) y [historias de usuario](docs/HISTORIAS_USUARIO.md). Se preserva el historial existente: dos commits iniciales, un commit de preparación de la base y un commit de reorganización MVC. La entrega 3 (HU09–HU12) se incorporó desde la cuenta de Santiago Erramouspe; faltan las entregas 1 y 2 de sus compañeros. Se prevén siete commits totales, salvo otros cambios.
 
-No se crean los tres commits ahora: cada integrante debe aplicar su parte, probarla, revisarla y confirmarla desde su cuenta. Los comentarios `ENTREGA` señalan los puntos de trabajo. No hay una versión terminada oculta detrás de opciones o banderas.
+Los compañeros deben implementar y confirmar sus partes desde sus cuentas. La validación integrada de la entrega 3 sigue pendiente. Los comentarios `ENTREGA` señalan los puntos de trabajo. No hay una versión terminada oculta detrás de opciones o banderas.
 
 ## Demo de la base
 
