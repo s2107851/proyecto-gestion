@@ -26,10 +26,11 @@ function exigir_admin() {
     if (usuario()['rol'] !== 'admin') { http_response_code(403); exit('Acceso reservado a administración.'); }
 }
 
-// Carga explícita: pocas piezas, sin autoloader ni framework.
+// Carga explícita MVC: la entrega 1 agrega exclusivamente el modelo de usuarios.
 require_once __DIR__ . '/conexion.php';
 require_once __DIR__ . '/../models/producto.php';
 require_once __DIR__ . '/../models/carrito.php';
+require_once __DIR__ . '/../models/usuario.php';
 require_once __DIR__ . '/../models/historial.php';
 require_once __DIR__ . '/../models/administracion.php';
 require_once __DIR__ . '/../controllers/catalogo.php';

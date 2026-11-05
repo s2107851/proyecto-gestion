@@ -1,0 +1,8 @@
+/* HU01-HU04: botón de cierre en la navegación, sin cambiar el diseño general. */
+.form-salir { margin:0; }
+.form-salir button {
+    border:0; background:transparent; color:var(--azul);
+    padding:7px 0; font-size:14px; line-height:1.5; cursor:pointer;
+}
+.form-salir button:hover { text-decoration:underline; text-underline-offset:4px; }
+@media(max-width:480px) { .form-salir button { font-size:13px; } }
