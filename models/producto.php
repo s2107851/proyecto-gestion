@@ -9,10 +9,11 @@ function producto_activo($id) {
     $consulta->execute([$id]);
     return (bool) $consulta->fetch();
 }
-function productos_del_carrito($ids) {
+function productos_del_carrito($ids, $bloquear = false) {
     if (!$ids) return [];
     $marcas = implode(',', array_fill(0, count($ids), '?'));
-    $consulta = db()->prepare("SELECT * FROM productos WHERE activo = 1 AND id IN ($marcas) ORDER BY id");
+    $bloqueo = $bloquear ? ' FOR UPDATE' : '';
+    $consulta = db()->prepare("SELECT * FROM productos WHERE activo = 1 AND id IN ($marcas) ORDER BY id$bloqueo");
     $consulta->execute($ids);
     return $consulta->fetchAll();
 }

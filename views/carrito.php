@@ -15,6 +15,17 @@
         </form><strong class="subtotal"><?= dinero($linea['subtotal']) ?></strong>
     </article>
 <?php endforeach; ?>
-</section><aside class="resumen"><p class="etiqueta">RESUMEN DEL PEDIDO</p><h2>Todo listo para revisar</h2><div class="fila"><span>Unidades</span><strong><?= array_sum(array_column($lineas, 'cantidad')) ?></strong></div><div class="fila total"><span>Total</span><strong><?= dinero($total) ?></strong></div><p><strong>Retiro en el local</strong><br>Pagás al retirar. Sin envíos.</p><button class="boton ancho" disabled>Confirmar pedido</button><p class="muted">La confirmación se implementará en la entrega 2. Esta versión todavía no registra pedidos.</p></aside></div>
+</section><aside class="resumen"><p class="etiqueta">RESUMEN DEL PEDIDO</p><h2>Todo listo para revisar</h2><div class="fila"><span>Unidades</span><strong><?= array_sum(array_column($lineas, 'cantidad')) ?></strong></div><div class="fila total"><span>Total</span><strong><?= dinero($total) ?></strong></div><p><strong>Retiro en el local</strong><br>Pagás al retirar. Sin envíos.</p>
+<?php if ($token): ?>
+<form method="post" action="confirmar.php"><?php csrf(); ?>
+    <input type="hidden" name="token" value="<?= e($token) ?>">
+    <button class="boton ancho">Confirmar pedido</button>
+</form>
+<?php elseif (!$usuarioActual): ?>
+<a class="boton ancho" href="cuenta.php">Ingresar para confirmar</a>
+<?php else: ?>
+<p>Para hacer un pedido, ingresá con una cuenta de cliente.</p>
+<?php endif; ?>
+</aside></div>
 <?php endif; ?>
 

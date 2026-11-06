@@ -6,7 +6,19 @@ function carrito_mostrar() {
         $resumen = carrito_resumen();
         if ($resumen['retirados']) mensaje('Se retiró del carrito un producto que ya no está disponible.');
     } catch (PDOException $ex) { error_log($ex->getMessage()); $error = true; http_response_code(503); }
-    vista('carrito', ['titulo' => 'Mi carrito', 'lineas' => $resumen['lineas'], 'total' => $resumen['total'], 'error' => $error]);
+    $token = null;
+    if ($resumen['lineas'] && (usuario()['rol'] ?? '') === 'cliente') {
+        $firma = pedido_firma($resumen);
+        $revision = $_SESSION['revision_pedido'] ?? [];
+        if (($revision['firma'] ?? '') !== $firma) {
+            $revision = ['firma' => $firma, 'token' => bin2hex(random_bytes(32))];
+        }
+        $_SESSION['revision_pedido'] = $revision;
+        $token = $revision['token'];
+    } else {
+        unset($_SESSION['revision_pedido']);
+    }
+    vista('carrito', ['titulo' => 'Mi carrito', 'lineas' => $resumen['lineas'], 'total' => $resumen['total'], 'error' => $error, 'token' => $token]);
 }
 function carrito_actualizar() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); header('Allow: POST'); exit('Usá los botones del carrito.'); }
@@ -24,4 +36,3 @@ function carrito_actualizar() {
     }
     ir($accion === 'agregar' ? 'index.php#catalogo' : 'carrito.php');
 }
-// ENTREGA 2 · HU08: agregar controlador de confirmación y modelo de pedidos.

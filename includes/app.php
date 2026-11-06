@@ -32,6 +32,7 @@ require_once __DIR__ . '/../models/producto.php';
 require_once __DIR__ . '/../models/carrito.php';
 require_once __DIR__ . '/../models/usuario.php';
 require_once __DIR__ . '/../models/historial.php';
+require_once __DIR__ . '/../models/pedido.php';
 require_once __DIR__ . '/../models/administracion.php';
 require_once __DIR__ . '/../controllers/catalogo.php';
 require_once __DIR__ . '/../controllers/carrito.php';

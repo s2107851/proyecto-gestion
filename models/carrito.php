@@ -17,9 +17,9 @@ function carrito_cambiar($id, $accion) {
     } else return 'El máximo por producto es 99 unidades.';
     return $accion === 'agregar' ? 'Producto agregado al carrito.' : '';
 }
-function carrito_resumen() {
+function carrito_resumen($bloquear = false) {
     $lineas = []; $validos = [];
-    foreach (productos_del_carrito(array_keys($_SESSION['carrito'])) as $producto) {
+    foreach (productos_del_carrito(array_keys($_SESSION['carrito']), $bloquear) as $producto) {
         $producto['cantidad'] = $_SESSION['carrito'][$producto['id']];
         $producto['centavos'] = centavos($producto['precio']);
         $producto['subtotal'] = $producto['centavos'] * $producto['cantidad'];
