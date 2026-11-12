@@ -1,0 +1,226 @@
+[1mdiff --git a/confirmar.php b/confirmar.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..10d21b0[m
+[1m--- /dev/null[m
+[1m+++ b/confirmar.php[m
+[36m@@ -0,0 +1,4 @@[m
+[32m+[m[32m<?php[m
+[32m+[m[32mrequire __DIR__ . '/includes/app.php';[m
+[32m+[m[32mrequire __DIR__ . '/controllers/confirmacion.php';[m
+[32m+[m[32mconfirmar_pedido();[m
+[1mdiff --git a/controllers/carrito.php b/controllers/carrito.php[m
+[1mindex d56b88d..11cd08a 100644[m
+[1m--- a/controllers/carrito.php[m
+[1m+++ b/controllers/carrito.php[m
+[36m@@ -6,7 +6,19 @@[m [mfunction carrito_mostrar() {[m
+         $resumen = carrito_resumen();[m
+         if ($resumen['retirados']) mensaje('Se retiró del carrito un producto que ya no está disponible.');[m
+     } catch (PDOException $ex) { error_log($ex->getMessage()); $error = true; http_response_code(503); }[m
+[31m-    vista('carrito', ['titulo' => 'Mi carrito', 'lineas' => $resumen['lineas'], 'total' => $resumen['total'], 'error' => $error]);[m
+[32m+[m[32m    $token = null;[m
+[32m+[m[32m    if ($resumen['lineas'] && (usuario()['rol'] ?? '') === 'cliente') {[m
+[32m+[m[32m        $firma = pedido_firma($resumen);[m
+[32m+[m[32m        $revision = $_SESSION['revision_pedido'] ?? [];[m
+[32m+[m[32m        if (($revision['firma'] ?? '') !== $firma) {[m
+[32m+[m[32m            $revision = ['firma' => $firma, 'token' => bin2hex(random_bytes(32))];[m
+[32m+[m[32m        }[m
+[32m+[m[32m        $_SESSION['revision_pedido'] = $revision;[m
+[32m+[m[32m        $token = $revision['token'];[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        unset($_SESSION['revision_pedido']);[m
+[32m+[m[32m    }[m
+[32m+[m[32m    vista('carrito', ['titulo' => 'Mi carrito', 'lineas' => $resumen['lineas'], 'total' => $resumen['total'], 'error' => $error, 'token' => $token]);[m
+ }[m
+ function carrito_actualizar() {[m
+     if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); header('Allow: POST'); exit('Usá los botones del carrito.'); }[m
+[36m@@ -24,4 +36,3 @@[m [mfunction carrito_actualizar() {[m
+     }[m
+     ir($accion === 'agregar' ? 'index.php#catalogo' : 'carrito.php');[m
+ }[m
+[31m-// ENTREGA 2 · HU08: agregar controlador de confirmación y modelo de pedidos.[m
+[1mdiff --git a/controllers/confirmacion.php b/controllers/confirmacion.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e3e74a0[m
+[1m--- /dev/null[m
+[1m+++ b/controllers/confirmacion.php[m
+[36m@@ -0,0 +1,33 @@[m
+[32m+[m[32m<?php[m
+[32m+[m[32mif (!defined('APP_INICIADA')) { http_response_code(404); exit; }[m
+[32m+[m
+[32m+[m[32mfunction confirmar_pedido() {[m
+[32m+[m[32m    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {[m
+[32m+[m[32m        header('Allow: POST'); http_response_code(405); exit;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    verificar_csrf();[m
+[32m+[m[32m    exigir_usuario();[m
+[32m+[m[32m    if (usuario()['rol'] !== 'cliente') { http_response_code(403); exit; }[m
+[32m+[m[32m    $token = $_POST['token'] ?? null;[m
+[32m+[m[32m    $revision = $_SESSION['revision_pedido'] ?? null;[m
+[32m+[m[32m    if (!$revision || !is_string($token) || !hash_equals($revision['token'], $token)) {[m
+[32m+[m[32m        mensaje('Esta confirmación ya no está vigente. Revisá el carrito o consultá tus pedidos.');[m
+[32m+[m[32m        ir('carrito.php');[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    try {[m
+[32m+[m[32m        $pedido = pedido_guardar(usuario()['id'], $token, $revision['firma']);[m
+[32m+[m[32m    } catch (DomainException $ex) {[m
+[32m+[m[32m        unset($_SESSION['revision_pedido']);[m
+[32m+[m[32m        mensaje($ex->getMessage());[m
+[32m+[m[32m        ir('carrito.php');[m
+[32m+[m[32m    } catch (PDOException $ex) {[m
+[32m+[m[32m        error_log($ex->getMessage());[m
+[32m+[m[32m        mensaje('No pudimos confirmar el pedido. Tu carrito está guardado. Volvé a intentarlo.');[m
+[32m+[m[32m        ir('carrito.php');[m
+[32m+[m[32m    }[m
+[32m+[m[32m    unset($_SESSION['revision_pedido']);[m
+[32m+[m[32m    $_SESSION['carrito'] = [];[m
+[32m+[m[32m    mensaje('Pedido #' . $pedido['id'] . ' confirmado por ' . dinero($pedido['total']) . '. Retirás y pagás en el local.');[m
+[32m+[m[32m    ir('perfil.php');[m
+[32m+[m[32m}[m
+[1mdiff --git a/docs/ENTREGA_2.md b/docs/ENTREGA_2.md[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f4291fc[m
+[1m--- /dev/null[m
+[1m+++ b/docs/ENTREGA_2.md[m
+[36m@@ -0,0 +1,21 @@[m
+[32m+[m[32m# Entrega 2 · Compra y confirmación (HU05–HU08)[m
+[32m+[m
+[32m+[m[32mEl catálogo y los controles de cantidad vienen de la base. Esta entrega conecta el resumen del carrito con la creación del pedido. Al confirmar, el sistema compara el contenido mostrado con los productos activos y precios actuales. Guarda el pedido y sus líneas en una transacción. El historial del cliente y el panel de administración leen ese mismo pedido.[m
+[32m+[m
+[32m+[m[32m## Pruebas para ejecutar en XAMPP antes del commit[m
+[32m+[m
+[32m+[m[32mUsar una base de prueba con el esquema del repositorio y una cuenta cliente.[m
+[32m+[m
+[32m+[m[32m| HU | Acción | Qué comprobar |[m
+[32m+[m[32m|---|---|---|[m
+[32m+[m[32m| 05 | Buscar un pan, combinar búsqueda con categoría y luego buscar un nombre inexistente. | Aparecen solo las coincidencias activas y un aviso cuando la lista queda vacía. |[m
+[32m+[m[32m| 06 | Agregar dos artículos, sumar, restar y eliminar. Abrir otra sesión privada. | El carrito respeta los límites de 1 a 99 y cada sesión tiene su propia selección. |[m
+[32m+[m[32m| 07 | Elegir dos unidades de un producto y una de otro. | Cada subtotal equivale al precio por la cantidad. El total suma las dos líneas y se actualiza al quitar una. |[m
+[32m+[m[32m| 08 | Ingresar como cliente y confirmar. Revisar perfil y administración. | Coinciden el número y el total. El pedido queda pendiente, sin pagar, con sus líneas y el carrito vacío. |[m
+[32m+[m[32m| 08 | Hacer doble clic o reenviar el mismo POST. | Solo aparece un pedido para ese token. |[m
+[32m+[m[32m| 08 | Con el resumen abierto, modificar el precio o desactivar un producto en otra sesión. Confirmar desde la primera. | Se pide revisar el carrito antes de guardar. |[m
+[32m+[m[32m| 08 | Cambiar una cantidad en otra pestaña y confirmar desde la anterior. | El formulario anterior no crea ningún pedido. |[m
+[32m+[m[32m| 08 | Abrir el carrito vacío o como invitado. Probar acceso GET a confirmar.php. | Solo un cliente con artículos puede confirmar. La entrada GET devuelve 405. |[m
+[32m+[m[32m| 08 | En una copia de prueba, provocar un error de inserción de detalle y confirmar. | No queda cabecera ni detalle parcial. Al corregir el fallo se puede reintentar con la selección conservada. |[m
+[32m+[m
+[32m+[m[32mAnotar los resultados observados antes de marcar las historias como hechas.[m
+[1mdiff --git a/includes/app.php b/includes/app.php[m
+[1mindex 9d5214f..089e60e 100644[m
+[1m--- a/includes/app.php[m
+[1m+++ b/includes/app.php[m
+[36m@@ -32,6 +32,7 @@[m [mrequire_once __DIR__ . '/../models/producto.php';[m
+ require_once __DIR__ . '/../models/carrito.php';[m
+ require_once __DIR__ . '/../models/usuario.php';[m
+ require_once __DIR__ . '/../models/historial.php';[m
+[32m+[m[32mrequire_once __DIR__ . '/../models/pedido.php';[m
+ require_once __DIR__ . '/../models/administracion.php';[m
+ require_once __DIR__ . '/../controllers/catalogo.php';[m
+ require_once __DIR__ . '/../controllers/carrito.php';[m
+[1mdiff --git a/models/carrito.php b/models/carrito.php[m
+[1mindex 7d3ba6c..3678155 100644[m
+[1m--- a/models/carrito.php[m
+[1m+++ b/models/carrito.php[m
+[36m@@ -17,9 +17,9 @@[m [mfunction carrito_cambiar($id, $accion) {[m
+     } else return 'El máximo por producto es 99 unidades.';[m
+     return $accion === 'agregar' ? 'Producto agregado al carrito.' : '';[m
+ }[m
+[31m-function carrito_resumen() {[m
+[32m+[m[32mfunction carrito_resumen($bloquear = false) {[m
+     $lineas = []; $validos = [];[m
+[31m-    foreach (productos_del_carrito(array_keys($_SESSION['carrito'])) as $producto) {[m
+[32m+[m[32m    foreach (productos_del_carrito(array_keys($_SESSION['carrito']), $bloquear) as $producto) {[m
+         $producto['cantidad'] = $_SESSION['carrito'][$producto['id']];[m
+         $producto['centavos'] = centavos($producto['precio']);[m
+         $producto['subtotal'] = $producto['centavos'] * $producto['cantidad'];[m
+[1mdiff --git a/models/pedido.php b/models/pedido.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..c8c0c7d[m
+[1m--- /dev/null[m
+[1m+++ b/models/pedido.php[m
+[36m@@ -0,0 +1,45 @@[m
+[32m+[m[32m<?php[m
+[32m+[m[32mif (!defined('APP_INICIADA')) { http_response_code(404); exit; }[m
+[32m+[m
+[32m+[m[32mfunction pedido_firma($resumen) {[m
+[32m+[m[32m    $articulos = [];[m
+[32m+[m[32m    foreach ($resumen['lineas'] as $linea) {[m
+[32m+[m[32m        $articulos[] = [$linea['id'], $linea['nombre'], $linea['centavos'], $linea['cantidad']];[m
+[32m+[m[32m    }[m
+[32m+[m[32m    return hash('sha256', serialize($articulos));[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction pedido_guardar($usuarioId, $token, $firma) {[m
+[32m+[m[32m    $pdo = db();[m
+[32m+[m[32m    $pdo->beginTransaction();[m
+[32m+[m[32m    try {[m
+[32m+[m[32m        // Recupera un pedido ya guardado si se interrumpió la respuesta anterior.[m
+[32m+[m[32m        $consulta = $pdo->prepare('SELECT id, total FROM pedidos WHERE token_confirmacion = ? AND usuario_id = ?');[m
+[32m+[m[32m        $consulta->execute([$token, $usuarioId]);[m
+[32m+[m[32m        $anterior = $consulta->fetch();[m
+[32m+[m[32m        if ($anterior) {[m
+[32m+[m[32m            $pdo->commit();[m
+[32m+[m[32m            return ['id' => $anterior['id'], 'total' => centavos($anterior['total'])];[m
+[32m+[m[32m        }[m
+[32m+[m[32m        $resumen = carrito_resumen(true);[m
+[32m+[m[32m        if (!$resumen['lineas'] || $resumen['retirados'] || pedido_firma($resumen) !== $firma) {[m
+[32m+[m[32m            throw new DomainException('El carrito cambió. Revisá los productos, las cantidades y el total antes de confirmar.');[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        $total = $resumen['total'];[m
+[32m+[m[32m        $importe = sprintf('%d.%02d', intdiv($total, 100), $total % 100);[m
+[32m+[m[32m        $cabecera = $pdo->prepare('INSERT INTO pedidos (usuario_id, total, token_confirmacion) VALUES (?, ?, ?)');[m
+[32m+[m[32m        $cabecera->execute([$usuarioId, $importe, $token]);[m
+[32m+[m[32m        $id = $pdo->lastInsertId();[m
+[32m+[m[32m        $detalle = $pdo->prepare('INSERT INTO detalle_pedido[m
+[32m+[m[32m            (pedido_id, producto_id, nombre_producto, cantidad, precio_unitario) VALUES (?, ?, ?, ?, ?)');[m
+[32m+[m[32m        foreach ($resumen['lineas'] as $linea) {[m
+[32m+[m[32m            $detalle->execute([$id, $linea['id'], $linea['nombre'], $linea['cantidad'], $linea['precio']]);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        $pdo->commit();[m
+[32m+[m[32m        return ['id' => $id, 'total' => $total];[m
+[32m+[m[32m    } catch (Throwable $ex) {[m
+[32m+[m[32m        if ($pdo->inTransaction()) $pdo->rollBack();[m
+[32m+[m[32m        throw $ex;[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[1mdiff --git a/models/producto.php b/models/producto.php[m
+[1mindex 01773c1..967a922 100644[m
+[1m--- a/models/producto.php[m
+[1m+++ b/models/producto.php[m
+[36m@@ -9,10 +9,11 @@[m [mfunction producto_activo($id) {[m
+     $consulta->execute([$id]);[m
+     return (bool) $consulta->fetch();[m
+ }[m
+[31m-function productos_del_carrito($ids) {[m
+[32m+[m[32mfunction productos_del_carrito($ids, $bloquear = false) {[m
+     if (!$ids) return [];[m
+     $marcas = implode(',', array_fill(0, count($ids), '?'));[m
+[31m-    $consulta = db()->prepare("SELECT * FROM productos WHERE activo = 1 AND id IN ($marcas) ORDER BY id");[m
+[32m+[m[32m    $bloqueo = $bloquear ? ' FOR UPDATE' : '';[m
+[32m+[m[32m    $consulta = db()->prepare("SELECT * FROM productos WHERE activo = 1 AND id IN ($marcas) ORDER BY id$bloqueo");[m
+     $consulta->execute($ids);[m
+     return $consulta->fetchAll();[m
+ }[m
+[1mdiff --git a/views/carrito.php b/views/carrito.php[m
+[1mindex 98fc2be..88cdf1a 100644[m
+[1m--- a/views/carrito.php[m
+[1m+++ b/views/carrito.php[m
+[36m@@ -15,6 +15,17 @@[m
+         </form><strong class="subtotal"><?= dinero($linea['subtotal']) ?></strong>[m
+     </article>[m
+ <?php endforeach; ?>[m
+[31m-</section><aside class="resumen"><p class="etiqueta">RESUMEN DEL PEDIDO</p><h2>Todo listo para revisar</h2><div class="fila"><span>Unidades</span><strong><?= array_sum(array_column($lineas, 'cantidad')) ?></strong></div><div class="fila total"><span>Total</span><strong><?= dinero($total) ?></strong></div><p><strong>Retiro en el local</strong><br>Pagás al retirar. Sin envíos.</p><button class="boton ancho" disabled>Confirmar pedido</button><p class="muted">La confirmación se implementará en la entrega 2. Esta versión todavía no registra pedidos.</p></aside></div>[m
+[32m+[m[32m</section><aside class="resumen"><p class="etiqueta">RESUMEN DEL PEDIDO</p><h2>Todo listo para revisar</h2><div class="fila"><span>Unidades</span><strong><?= array_sum(array_column($lineas, 'cantidad')) ?></strong></div><div class="fila total"><span>Total</span><strong><?= dinero($total) ?></strong></div><p><strong>Retiro en el local</strong><br>Pagás al retirar. Sin envíos.</p>[m
+[32m+[m[32m<?php if ($token): ?>[m
+[32m+[m[32m<form method="post" action="confirmar.php"><?php csrf(); ?>[m
+[32m+[m[32m    <input type="hidden" name="token" value="<?= e($token) ?>">[m
+[32m+[m[32m    <button class="boton ancho">Confirmar pedido</button>[m
+[32m+[m[32m</form>[m
+[32m+[m[32m<?php elseif (!$usuarioActual): ?>[m
+[32m+[m[32m<a class="boton ancho" href="cuenta.php">Ingresar para confirmar</a>[m
+[32m+[m[32m<?php else: ?>[m
+[32m+[m[32m<p>Para hacer un pedido, ingresá con una cuenta de cliente.</p>[m
+[32m+[m[32m<?php endif; ?>[m
+[32m+[m[32m</aside></div>[m
+ <?php endif; ?>[m
+ [m
